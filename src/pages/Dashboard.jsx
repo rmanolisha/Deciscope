@@ -39,26 +39,18 @@ const Dashboard = () => {
     setResult(null);
 
     try {
-      // Mock API call based on the requirement
-      await new Promise(resolve => setTimeout(resolve, 2500));
+      const response = await axios.post('/api/analyze', { decision });
       
-      const mockResult = {
-        summary: "Your decision to pivot the project seems well-intentioned but needs more data validation.",
-        biases: ["Sunk Cost Fallacy", "Confirmation Bias", "Optimism Bias"],
-        missingConsiderations: [
-          "Impact on current team morale",
-          "Long-term maintenance costs",
-          "Alternative market opportunities"
-        ],
-        reframingQuestions: [
-          "If you started from scratch today, would you choose this path?",
-          "What is the worst-case scenario you haven't accounted for?",
-          "How would a competitor react to this decision?"
-        ],
-        reasoningScore: 68
-      };
-      
-      setResult(mockResult);
+      if (response.data.success) {
+        const data = response.data.data;
+        setResult({
+          summary: data.summary,
+          biases: data.detected_biases || [],
+          missingConsiderations: data.missing_considerations || [],
+          reframingQuestions: data.reframing_questions || [],
+          reasoningScore: data.reasoning_score || 0
+        });
+      }
     } catch (error) {
       console.error("Analysis failed", error);
     } finally {
